@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SheSafe?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    #map { height: 90vh; width: 100%; }
+    #form-container {
+      padding: 10px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+  <h1>🛡️ SheSafe? - Drop your experience</h1>
+  <div id="map"></div>
+  <div id="form-container">
+    <button onclick="dropPin()">Drop a Pin</button>
+    <select id="tag">
+      <option value="safe">✅ Safe</option>
+      <option value="mixed">⚠️ Mixed</option>
+      <option value="unsafe">🚫 Unsafe</option>
+    </select>
+    <input type="text" id="note" placeholder="Optional comment" />
+  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([28.6139, 77.2090], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; contributors'
+    }).addTo(map);
+
+    fetch('/api/pins')
+      .then(res => res.json())
+      .then(pins => {
+        pins.forEach(pin => {
+          const icon = pin.tag === "safe" ? "✅" : pin.tag === "mixed" ? "⚠️" : "🚫";
+          L.marker([pin.lat, pin.lng]).addTo(map)
+            .bindPopup(`<b>${icon} ${pin.tag}</b><br>${pin.text || 'No comment'}<br><i>${new Date(pin.timestamp).toLocaleString()}</i>`);
+        });
+      });
+
+    function dropPin() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const tag = document.getElementById('tag').value;
+        const text = document.getElementById('note').value;
+        fetch('/api/pins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            tag,
+            text
+          })
+        }).then(res => {
+          if (res.ok) location.reload();
+          else res.json().then(data => alert(data.error));
+        });
+      });
+    }
+  </script>
+</body>
+</html>
