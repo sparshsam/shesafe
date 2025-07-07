@@ -4,29 +4,61 @@
 <head>
   <title>SheSafe?</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    #map { height: 90vh; width: 100%; }
-    #form-container {
-      padding: 10px;
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      padding: 1rem;
+      background: #f8f9fa;
+      margin: 0;
+    }
+    #map {
+      height: 90vh;
+      width: 100%;
+    }
+    #controls {
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      z-index: 1000;
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    #controls select, #controls input, #controls button {
+      margin-top: 0.5rem;
+      display: block;
+      width: 100%;
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem;
+      font-size: 1rem;
     }
   </style>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
   <h1>🛡️ SheSafe? - Drop your experience</h1>
   <div id="map"></div>
-  <div id="form-container">
-    <button onclick="dropPin()">Drop a Pin</button>
+  <div id="controls">
     <select id="tag">
       <option value="safe">✅ Safe</option>
       <option value="mixed">⚠️ Mixed</option>
       <option value="unsafe">🚫 Unsafe</option>
     </select>
     <input type="text" id="note" placeholder="Optional comment" />
+    <button onclick="submitPin()">Submit</button>
   </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([28.6139, 77.2090], 13);
+    let selectedLatLng = null;
+
+    const map = L.map('map').setView([28.6139, 77.2090], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; contributors'
     }).addTo(map);
@@ -41,27 +73,32 @@
         });
       });
 
-    function dropPin() {
-      if (!navigator.geolocation) {
-        alert("Geolocation not supported.");
+    map.on('click', function(e) {
+      selectedLatLng = e.latlng;
+      alert("Location selected. Now fill the form and click Submit.");
+    });
+
+    function submitPin() {
+      if (!selectedLatLng) {
+        alert("Please click on the map to choose a location.");
         return;
       }
-      navigator.geolocation.getCurrentPosition(pos => {
-        const tag = document.getElementById('tag').value;
-        const text = document.getElementById('note').value;
-        fetch('/api/pins', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            tag,
-            text
-          })
-        }).then(res => {
-          if (res.ok) location.reload();
-          else res.json().then(data => alert(data.error));
-        });
+
+      const tag = document.getElementById('tag').value;
+      const text = document.getElementById('note').value;
+
+      fetch('/api/pins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: selectedLatLng.lat,
+          lng: selectedLatLng.lng,
+          tag,
+          text
+        })
+      }).then(res => {
+        if (res.ok) location.reload();
+        else res.json().then(data => alert(data.error));
       });
     }
   </script>

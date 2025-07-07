@@ -5,7 +5,7 @@ const path = require('path');
 const router = express.Router();
 
 const restrictedZones = [
-  { lat: 28.6129, lng: 77.2295, radius: 200 },
+  { lat: 28.6129, lng: 77.2295, radius: 200 }
 ];
 
 function isWithinProtectedZone(lat, lng) {
