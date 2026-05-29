@@ -43,6 +43,7 @@ interface DynamicMapProps {
   center?: [number, number];
   zoom?: number;
   cursorMode?: 'crosshair' | 'default';
+  dropMode?: boolean;
 }
 
 export default function DynamicMap({
@@ -51,6 +52,7 @@ export default function DynamicMap({
   onPinClick,
   center = [20, 78],
   zoom = 5,
+  dropMode = false,
 }: DynamicMapProps) {
   return (
     <MapContainer
@@ -66,7 +68,11 @@ export default function DynamicMap({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <PinMarkers pins={pins} onPinClick={onPinClick} />
-      {onMapClick && <MapClickHandler onMapClick={onMapClick} />}
+      {/* Only listen for drop-mode clicks when in drop mode.
+          In normal mode, map clicks should close the detail panel or be ignored. */}
+      {onMapClick && (
+        <MapClickHandler onMapClick={onMapClick} enabled={dropMode} />
+      )}
     </MapContainer>
   );
 }

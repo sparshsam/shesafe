@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, ComponentProps } from 'react';
 import dynamic from 'next/dynamic';
 import type { Pin } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 const DynamicMap = dynamic(
   () => import('./dynamic-map'),
   { ssr: false }
-);
+) as React.ComponentType<ComponentProps<typeof import('./dynamic-map').default>>;
 
 interface MapProps {
   pins: Pin[];
@@ -19,6 +19,7 @@ interface MapProps {
   center?: [number, number];
   zoom?: number;
   cursorMode?: 'crosshair' | 'default';
+  dropMode?: boolean;
 }
 
 export function Map(props: MapProps) {
@@ -44,7 +45,13 @@ export function Map(props: MapProps) {
   }
 
   return (
-    <div className={`w-full h-full relative ${props.cursorMode === 'crosshair' ? '[&_.leaflet-container]:cursor-crosshair' : ''}`}>
+    <div
+      className={`w-full h-full relative ${
+        props.cursorMode === 'crosshair'
+          ? '[&_.leaflet-container]:!cursor-crosshair'
+          : ''
+      }`}
+    >
       <DynamicMap {...props} />
     </div>
   );

@@ -164,6 +164,7 @@ export default function Home() {
             onMapClick={handleMapClick}
             onPinClick={setSelectedPin}
             cursorMode={dropMode ? 'crosshair' : undefined}
+            dropMode={dropMode}
           />
 
           {/* Mobile: Drop Pin FAB */}
