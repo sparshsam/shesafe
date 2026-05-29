@@ -12,7 +12,7 @@ vercel-*.py
 setup-db.js
 
 # Supabase CLI files
-supabase/
+/supabase/
 
 # Next.js build output
 .next/
