@@ -128,3 +128,11 @@
     @apply font-sans;
   }
 }
+
+/* Drop mode cursor on the map container */
+.drop-mode-active .leaflet-container {
+  cursor: crosshair !important;
+}
+.drop-mode-active .leaflet-container * {
+  cursor: crosshair !important;
+}

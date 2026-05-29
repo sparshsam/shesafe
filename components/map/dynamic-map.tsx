@@ -42,6 +42,7 @@ interface DynamicMapProps {
   selectedPinId?: string | null;
   center?: [number, number];
   zoom?: number;
+  cursorMode?: 'crosshair' | 'default';
 }
 
 export default function DynamicMap({

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MapPin } from 'lucide-react';
 import type { SafetyTag, PinCategory, TimeOfDay } from '@/lib/types';
 import { getGuestSession } from '@/lib/guest';
 
@@ -32,43 +32,55 @@ export function PinSubmitDialog({ open, onOpenChange, coords, onSuccess }: Props
         headers: { 'Content-Type': 'application/json', 'X-Session-Id': getGuestSession() },
         body: JSON.stringify({ lat: coords.lat, lng: coords.lng, tag, category, description, time_of_day: timeOfDay }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Failed to submit');
       }
-      toast.success('Pin submitted!', { description: 'Thank you for contributing to safety.' });
+      toast.success('Safety pin submitted!', { description: 'Thank you for helping the community.' });
       setDescription('');
       onSuccess();
     } catch (err: any) {
-      toast.error('Error', { description: err.message });
+      toast.error('Something went wrong', { description: err.message });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleCancel = () => {
+    if (submitting) return;
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={(v) => { if (!submitting) onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Safety Pin</DialogTitle>
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <MapPin className="h-5 w-5" /> Add Safety Pin
+          </DialogTitle>
           <DialogDescription>
-            {coords ? `Location: ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : 'Click on the map to select a location'}
+            {coords
+              ? `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+              : 'Click on the map to select a location'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Safety Level</label>
+          {/* Safety Level */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">How safe is this area?</label>
             <Select value={tag} onValueChange={(v) => setTag(v as SafetyTag)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="safe">✅ Safe</SelectItem>
-                <SelectItem value="mixed">⚠️ Mixed</SelectItem>
-                <SelectItem value="unsafe">🚫 Unsafe</SelectItem>
+                <SelectItem value="safe">✅ Safe — felt secure</SelectItem>
+                <SelectItem value="mixed">⚠️ Mixed — some concerns</SelectItem>
+                <SelectItem value="unsafe">🚫 Unsafe — avoid if possible</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Category</label>
+
+          {/* Category */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Category (optional)</label>
             <Select value={category} onValueChange={(v) => setCategory(v as PinCategory)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -81,12 +93,14 @@ export function PinSubmitDialog({ open, onOpenChange, coords, onSuccess }: Props
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Time of Day</label>
+
+          {/* Time of day */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Time of day (optional)</label>
             <Select value={timeOfDay} onValueChange={(v) => setTimeOfDay(v as TimeOfDay)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any Time</SelectItem>
+                <SelectItem value="any">🕐 Any Time</SelectItem>
                 <SelectItem value="morning">🌅 Morning</SelectItem>
                 <SelectItem value="afternoon">☀️ Afternoon</SelectItem>
                 <SelectItem value="evening">🌆 Evening</SelectItem>
@@ -94,14 +108,30 @@ export function PinSubmitDialog({ open, onOpenChange, coords, onSuccess }: Props
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Description (optional)</label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your experience..." rows={3} />
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Notes (optional)</label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe what happened or what to watch out for..."
+              rows={3}
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground text-right">{description.length}/500</p>
           </div>
-          <Button onClick={handleSubmit} disabled={submitting} className="w-full">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Submit Pin
-          </Button>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" onClick={handleCancel} disabled={submitting} className="flex-1">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={submitting || !coords} className="flex-1 gap-2">
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Submit Pin
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

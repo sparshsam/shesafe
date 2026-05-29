@@ -6,7 +6,6 @@ import type { Pin } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
 // All react-leaflet components must be loaded client-side only.
-// Grouped into fewer dynamic chunks for faster hydration.
 const DynamicMap = dynamic(
   () => import('./dynamic-map'),
   { ssr: false }
@@ -19,14 +18,13 @@ interface MapProps {
   selectedPinId?: string | null;
   center?: [number, number];
   zoom?: number;
+  cursorMode?: 'crosshair' | 'default';
 }
 
 export function Map(props: MapProps) {
   const [ready, setReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Defer map mounting by one microtask to ensure flex layout has settled.
-  // This prevents Leaflet from initializing with a zero-height container.
   useEffect(() => {
     const id = requestAnimationFrame(() => {
       setReady(true);
@@ -46,7 +44,7 @@ export function Map(props: MapProps) {
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className={`w-full h-full relative ${props.cursorMode === 'crosshair' ? '[&_.leaflet-container]:cursor-crosshair' : ''}`}>
       <DynamicMap {...props} />
     </div>
   );
