@@ -1,0 +1,30 @@
+# Temp debug/check scripts
+check-supabase-*
+check_*.py
+check_*.sh
+deploy*.py
+deploy*.sh
+diagnose.py
+fix_*.py
+fix_*.sh
+project_config.py
+vercel-*.py
+setup-db.js
+
+# Supabase CLI files
+supabase/
+
+# Next.js build output
+.next/
+
+# Dependencies
+node_modules/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
