@@ -2,13 +2,15 @@ import { type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  // Only protect the admin dashboard
+  if (!request.nextUrl.pathname.startsWith('/admin')) {
+    return;
+  }
+
   const { supabase, supabaseResponse } = createClient(request);
   const { data: { user } } = await supabase.auth.getUser();
-  
-  const protectedPaths = ['/profile', '/admin'];
-  const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p));
 
-  if (isProtected && !user) {
+  if (!user) {
     const url = new URL('/auth', request.url);
     return Response.redirect(url);
   }
@@ -16,4 +18,4 @@ export async function middleware(request: NextRequest) {
   return supabaseResponse;
 }
 
-export const config = { matcher: ['/profile/:path*', '/admin/:path*'] };
+export const config = { matcher: ['/admin/:path*'] };

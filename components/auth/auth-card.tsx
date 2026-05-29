@@ -4,11 +4,12 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Loader2, Mail, UserIcon } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export function AuthCard() {
-  const [mode, setMode] = useState<'signin' | 'signup' | 'anonymous'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,22 +38,14 @@ export function AuthCard() {
     setLoading(false);
   };
 
-  const signInAnonymously = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInAnonymously();
-    if (error) {
-      toast.error(error.message);
-    } else {
-      window.location.href = '/';
-    }
-    setLoading(false);
-  };
-
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl">🛡️ SheSafe?</CardTitle>
-        <CardDescription>Join the community keeping public spaces safe</CardDescription>
+        <CardDescription>
+          Sign in to manage your pins or access the admin dashboard.
+          You don&apos;t need an account to use the map!
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Email/Password form */}
@@ -80,16 +73,11 @@ export function AuthCard() {
           )}
         </p>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">or</span></div>
+        <div className="pt-2">
+          <p className="text-xs text-center text-muted-foreground">
+            <Link href="/" className="underline hover:text-primary">← Back to map</Link> — no account needed to drop pins.
+          </p>
         </div>
-
-        {/* Anonymous */}
-        <Button onClick={signInAnonymously} disabled={loading} variant="secondary" className="w-full">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserIcon className="h-4 w-4 mr-2" />}
-          Continue Anonymously
-        </Button>
       </CardContent>
     </Card>
   );

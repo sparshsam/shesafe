@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import type { SafetyTag, PinCategory, TimeOfDay } from '@/lib/types';
+import { getGuestSession } from '@/lib/guest';
 
 interface Props {
   open: boolean;
@@ -28,7 +29,7 @@ export function PinSubmitDialog({ open, onOpenChange, coords, onSuccess }: Props
     try {
       const res = await fetch('/api/pins', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Session-Id': getGuestSession() },
         body: JSON.stringify({ lat: coords.lat, lng: coords.lng, tag, category, description, time_of_day: timeOfDay }),
       });
       if (!res.ok) {

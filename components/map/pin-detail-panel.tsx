@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp, Flag, MessageSquare, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { getGuestSession } from '@/lib/guest';
 import type { Pin, PinComment } from '@/lib/types';
 
 const tagLabels: Record<string, string> = { safe: '✅ Safe', mixed: '⚠️ Mixed', unsafe: '🚫 Unsafe' };
@@ -22,7 +23,7 @@ export function PinDetailPanel({ pin, onClose }: { pin: Pin | null; onClose: () 
   if (!pin) return null;
 
   const handleUpvote = async () => {
-    const res = await fetch(`/api/pins/${pin.id}/upvote`, { method: upvoted ? 'DELETE' : 'POST' });
+    const res = await fetch(`/api/pins/${pin.id}/upvote`, { method: upvoted ? 'DELETE' : 'POST', headers: { 'X-Session-Id': getGuestSession() } });
     if (res.ok) setUpvoted(!upvoted);
     else toast.error('Failed to toggle upvote');
   };
@@ -30,7 +31,7 @@ export function PinDetailPanel({ pin, onClose }: { pin: Pin | null; onClose: () 
   const handleComment = async () => {
     if (!commentBody.trim()) return;
     const res = await fetch(`/api/pins/${pin.id}/comments`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body: commentBody }),
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Session-Id': getGuestSession() }, body: JSON.stringify({ body: commentBody }),
     });
     if (res.ok) {
       const comment = await res.json();
@@ -40,7 +41,7 @@ export function PinDetailPanel({ pin, onClose }: { pin: Pin | null; onClose: () 
   };
 
   const handleFlag = async () => {
-    await fetch(`/api/pins/${pin.id}/flag`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    await fetch(`/api/pins/${pin.id}/flag`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Session-Id': getGuestSession() }, body: JSON.stringify({}) });
     toast.success('Flagged for review');
   };
 

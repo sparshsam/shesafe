@@ -4,9 +4,17 @@ import { createClient } from '@/lib/supabase/server';
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data, error } = await supabase.from('pins').select('*, pin_upvotes(count), pin_comments(count)').eq('id', id).single();
+  const { data, error } = await supabase
+    .from('pins')
+    .select('*, pin_upvotes(count), pin_comments(count)')
+    .eq('id', id)
+    .single();
   if (error) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json({ ...data, upvotes: (data as any).pin_upvotes?.[0]?.count ?? 0, comment_count: (data as any).pin_comments?.[0]?.count ?? 0 });
+  return NextResponse.json({
+    ...data,
+    upvotes: (data as any).pin_upvotes?.[0]?.count ?? 0,
+    comment_count: (data as any).pin_comments?.[0]?.count ?? 0,
+  });
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

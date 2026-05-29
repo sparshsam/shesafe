@@ -22,7 +22,13 @@ export function AuthButton() {
     await supabase.auth.signOut();
   };
 
-  if (!user) return <Link href="/auth"><Button variant="default" size="sm">Sign In</Button></Link>;
+  if (!user) {
+    return (
+      <Link href="/auth">
+        <Button variant="outline" size="sm">Sign In</Button>
+      </Link>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -30,7 +36,7 @@ export function AuthButton() {
         <AvatarImage src={user.user_metadata?.avatar_url} />
         <AvatarFallback>{(user.email?.[0] || 'U').toUpperCase()}</AvatarFallback>
       </Avatar>
-      <span className="text-sm hidden md:inline">{user.email || 'Anonymous'}</span>
+      <span className="text-sm hidden md:inline">{user.email || 'Signed in'}</span>
     </div>
   );
 }
