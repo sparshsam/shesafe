@@ -23,6 +23,8 @@ export function PinSubmitDialog({ open, onOpenChange, coords, onSuccess }: Props
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('any');
   const [submitting, setSubmitting] = useState(false);
 
+  console.log('[PinSubmitDialog] Render', { open, hasCoords: !!coords, submitting });
+
   const handleSubmit = async () => {
     if (!coords) return;
     setSubmitting(true);

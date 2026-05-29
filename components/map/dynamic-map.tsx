@@ -1,20 +1,10 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, ZoomControl, useMap } from 'react-leaflet';
+import { useEffect, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, ZoomControl, useMap, useMapEvent } from 'react-leaflet';
 import { PinMarkers } from './pin-markers';
-import { MapClickHandler } from './map-click-handler';
 import type { Pin } from '@/lib/types';
 
-/**
- * Safely invalidates the map size after the layout settles.
- * Leaflet stores the container dimensions at init time; if the container
- * is inside a flex/grid layout that hasn't finished calculating, the map
- * gets zero or partial dimensions and never self-corrects.
- *
- * Calling invalidateSize() after mount forces Leaflet to re-read the
- * container, fixing the "fragmented tiles" issue.
- */
 function MapResizer() {
   const map = useMap();
 
@@ -23,14 +13,44 @@ function MapResizer() {
   }, [map]);
 
   useEffect(() => {
-    // First invalidation after mount — layout should be settled by now
-    // because dynamic-map.tsx is loaded as a deferred dynamic import.
     resize();
-
-    // Second invalidation after a short delay to catch any late layout shifts.
     const timer = setTimeout(resize, 300);
     return () => clearTimeout(timer);
   }, [resize, map]);
+
+  return null;
+}
+
+
+/**
+ * Wraps react-leaflet's useMapEvent to always call the latest callback.
+ * react-leaflet v4's useMapEvent does this internally via refs, but this
+ * explicit version makes it more transparent and debuggable.
+ */
+function ClickHandler({ onMapClick, enabled }: { onMapClick: (lat: number, lng: number) => void; enabled: boolean }) {
+  const map = useMap();
+
+  const handleClick = useCallback(
+    (e: L.LeafletMouseEvent) => {
+      console.log('[ClickHandler] Map click fired', { enabled, lat: e.latlng.lat, lng: e.latlng.lng });
+      if (!enabled) {
+        console.log('[ClickHandler] Ignored — not in drop mode');
+        return;
+      }
+      try {
+        onMapClick(e.latlng.lat, e.latlng.lng);
+        console.log('[ClickHandler] onMapClick called successfully');
+      } catch (err) {
+        console.error('[ClickHandler] Error in onMapClick:', err);
+      }
+    },
+    [onMapClick, enabled]
+  );
+
+  // useMapEvent re-binds the handler whenever its deps change (onMapClick or enabled).
+  // This ensures the map always calls the latest handler, avoiding stale closures.
+  console.log('[ClickHandler] Rendering with', { enabled, hasOnMapClick: !!onMapClick });
+  useMapEvent('click', handleClick);
 
   return null;
 }
@@ -54,6 +74,8 @@ export default function DynamicMap({
   zoom = 5,
   dropMode = false,
 }: DynamicMapProps) {
+  console.log('[DynamicMap] Render', { pinCount: pins.length, dropMode, hasOnMapClick: !!onMapClick });
+
   return (
     <MapContainer
       center={center}
@@ -68,10 +90,8 @@ export default function DynamicMap({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <PinMarkers pins={pins} onPinClick={onPinClick} />
-      {/* Only listen for drop-mode clicks when in drop mode.
-          In normal mode, map clicks should close the detail panel or be ignored. */}
       {onMapClick && (
-        <MapClickHandler onMapClick={onMapClick} enabled={dropMode} />
+        <ClickHandler onMapClick={onMapClick} enabled={dropMode} />
       )}
     </MapContainer>
   );

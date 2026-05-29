@@ -63,17 +63,22 @@ export default function Home() {
 
   const handleDropPinClick = () => {
     if (dropMode) {
+      console.log('[page] Exiting drop mode via button');
       setDropMode(false);
       return;
     }
+    console.log('[page] Entering drop mode');
     setDropMode(true);
     setSelectedPin(null);
   };
 
   const handleMapClick = (lat: number, lng: number) => {
+    console.log('[page] handleMapClick called', { lat, lng, showSubmitDialog: false });
     setSubmitCoords({ lat, lng });
+    // Use timeout to verify state actually changes
     setShowSubmitDialog(true);
     setDropMode(false);
+    console.log('[page] State updates queued — dialog should open');
   };
 
   const handleCloseDetail = () => setSelectedPin(null);
