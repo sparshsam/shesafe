@@ -35,13 +35,16 @@ create table if not exists pin_upvotes (
   pin_id uuid references pins(id) on delete cascade not null,
   user_id uuid references profiles(id) on delete cascade,
   session_id text,                                   -- guest identifier
-  created_at timestamptz default now(),
-  unique(pin_id, coalesce(user_id, 'guest_' || session_id))  -- unique per pin per user or guest
+  created_at timestamptz default now()
 );
 
--- Drop the old unique constraint that required user_id and recreate
--- Note: The unique constraint above uses a coalesce trick. In practice,
--- unique enforcement is handled app-side via the API route.
+-- Partial unique indexes for pin_upvotes:
+--   authenticated users are unique per (pin_id, user_id)
+--   guests are unique per (pin_id, session_id)
+drop index if exists pin_upvotes_user_unique;
+create unique index pin_upvotes_user_unique on pin_upvotes (pin_id, user_id) where user_id is not null;
+drop index if exists pin_upvotes_session_unique;
+create unique index pin_upvotes_session_unique on pin_upvotes (pin_id, session_id) where user_id is null and session_id is not null;
 
 create table if not exists pin_comments (
   id uuid default gen_random_uuid() primary key,
