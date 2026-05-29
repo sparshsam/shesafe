@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, ZoomControl, useMap, useMapEvent } from 'react-leaflet';
+import { useCallback, useEffect } from 'react';
+import { MapContainer, TileLayer, ZoomControl, useMap } from 'react-leaflet';
 import { PinMarkers } from './pin-markers';
+import { MapClickHandler } from './map-click-handler';
 import type { Pin } from '@/lib/types';
 
 function MapResizer() {
@@ -17,40 +18,6 @@ function MapResizer() {
     const timer = setTimeout(resize, 300);
     return () => clearTimeout(timer);
   }, [resize, map]);
-
-  return null;
-}
-
-
-/**
- * Wraps react-leaflet's useMapEvent to always call the latest callback.
- * react-leaflet v4's useMapEvent does this internally via refs, but this
- * explicit version makes it more transparent and debuggable.
- */
-function ClickHandler({ onMapClick, enabled }: { onMapClick: (lat: number, lng: number) => void; enabled: boolean }) {
-  const map = useMap();
-
-  const handleClick = useCallback(
-    (e: L.LeafletMouseEvent) => {
-      console.log('[ClickHandler] Map click fired', { enabled, lat: e.latlng.lat, lng: e.latlng.lng });
-      if (!enabled) {
-        console.log('[ClickHandler] Ignored — not in drop mode');
-        return;
-      }
-      try {
-        onMapClick(e.latlng.lat, e.latlng.lng);
-        console.log('[ClickHandler] onMapClick called successfully');
-      } catch (err) {
-        console.error('[ClickHandler] Error in onMapClick:', err);
-      }
-    },
-    [onMapClick, enabled]
-  );
-
-  // useMapEvent re-binds the handler whenever its deps change (onMapClick or enabled).
-  // This ensures the map always calls the latest handler, avoiding stale closures.
-  console.log('[ClickHandler] Rendering with', { enabled, hasOnMapClick: !!onMapClick });
-  useMapEvent('click', handleClick);
 
   return null;
 }
@@ -74,8 +41,6 @@ export default function DynamicMap({
   zoom = 5,
   dropMode = false,
 }: DynamicMapProps) {
-  console.log('[DynamicMap] Render', { pinCount: pins.length, dropMode, hasOnMapClick: !!onMapClick });
-
   return (
     <MapContainer
       center={center}
@@ -91,7 +56,7 @@ export default function DynamicMap({
       />
       <PinMarkers pins={pins} onPinClick={onPinClick} />
       {onMapClick && (
-        <ClickHandler onMapClick={onMapClick} enabled={dropMode} />
+        <MapClickHandler onMapClick={onMapClick} enabled={dropMode} />
       )}
     </MapContainer>
   );
