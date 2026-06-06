@@ -4,6 +4,20 @@ SheSafe? is an early-stage safety mapping concept built with Next.js. The projec
 
 The current repository is still in MVP territory. This README defines the intended product direction, contribution boundaries, and longer-term roadmap so the project can grow with a clear philosophy instead of drifting into a generic map app.
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Status: Early MVP](https://img.shields.io/badge/status-early%20MVP-yellow)](#current-direction)
+[![Security Policy](https://img.shields.io/badge/security-policy-24292f)](SECURITY.md)
+[![Contributions](https://img.shields.io/badge/contributions-careful%20PRs-2ea44f)](CONTRIBUTING.md)
+
+## Quick Links
+
+- [Development](#development)
+- [Roadmap](#roadmap)
+- [Security policy](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Support](SUPPORT.md)
+- [License](LICENSE)
+
 ## Core Idea
 
 SheSafe? should feel simple, humane, and careful:
