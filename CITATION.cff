@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: >-
+  If you use SheSafe in research or publications, please cite this
+  repository.
+title: SheSafe
+abstract: >-
+  A community-sourced safety map where users drop pins on an
+  interactive map to mark safety-related observations without
+  passive location tracking or surveillance infrastructure.
+authors:
+  - family-names: Agarwal
+    given-names: Sparsh
+    orcid: ''
+license: AGPL-3.0-or-later
+repository-code: 'https://github.com/sparshagarwal/shesafe'
+keywords:
+  - safety-map
+  - community-safety
+  - leaflet
+  - supabase
+  - nextjs
+  - openstreetmap
+type: software
