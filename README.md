@@ -133,3 +133,7 @@ Open `http://localhost:3000`.
 ## Contributing
 
 Contributions should preserve the project’s safety and privacy boundaries. For UI changes, include screenshots. For data, map, moderation, or identity changes, explain the privacy and abuse implications clearly.
+
+---
+
+*Last updated: June 2026*

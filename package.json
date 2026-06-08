@@ -42,5 +42,17 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "Public-interest safety tooling for accountability and civic trust.",
+  "license": "MIT",
+  "author": "Sparsh Sam",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sparshsam/shesafe.git"
+  },
+  "homepage": "https://github.com/sparshsam/shesafe#readme",
+  "bugs": {
+    "url": "https://github.com/sparshsam/shesafe/issues"
+  },
+  "keywords": []
 }
