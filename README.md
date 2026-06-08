@@ -137,3 +137,11 @@ Contributions should preserve the project’s safety and privacy boundaries. For
 ---
 
 *Last updated: June 2026*
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+*Last updated: June 2026*
